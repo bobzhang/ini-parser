@@ -419,6 +419,7 @@ test "parse handles non-BMP (emoji) characters at line boundaries" {
   // could report the error. Must return InvalidFormat instead.
   match parse("[incomplete🎯") {
     Ok(_) => fail("expected parse to reject malformed header")
-    Err(_) => ()
+    Err(InvalidFormat(_)) => ()
+    Err(other) => fail("expected InvalidFormat, got \{other}")
   }
 }
