@@ -390,7 +390,14 @@ test "real world example - application config" {
 /// previous s[0:prefix.length()].to_string() rewrite would abort on input
 /// whose first or last character was outside the BMP (e.g. an emoji).
 /// Using String::has_prefix / has_suffix delegates to a safe comparison.
-test "parse keys with non-BMP (emoji) characters at line boundaries" {
+///
+/// Covers both helpers:
+/// - starts_with: keys whose first char is a non-BMP emoji.
+/// - ends_with:   a line that *starts* with `[` (so starts_with is true
+///                and ends_with is actually evaluated) but ends with a
+///                non-BMP char rather than `]`. The naive slice rewrite
+///                would have aborted here on the trailing low surrogate.
+test "parse handles non-BMP (emoji) characters at line boundaries" {
   let content =
     #|[section]
     #|🔑=value with emoji key
@@ -405,5 +412,13 @@ test "parse keys with non-BMP (emoji) characters at line boundaries" {
       )
     }
     Err(_) => fail("expected parse to succeed on non-BMP input")
+  }
+  // Single line that starts with `[` (so ends_with is actually invoked)
+  // and ends with a non-BMP char rather than `]`. With the naive slice
+  // rewrite this would abort on the trailing low surrogate before parse
+  // could report the error. Must return InvalidFormat instead.
+  match parse("[incomplete🎯") {
+    Ok(_) => fail("expected parse to reject malformed header")
+    Err(_) => ()
   }
 }
