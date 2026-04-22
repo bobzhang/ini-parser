@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "username/hello/lib"
+package "bobzhang/ini/lib"
 
 // Values
 fn parse(String) -> Result[IniConfig, ParseError]
