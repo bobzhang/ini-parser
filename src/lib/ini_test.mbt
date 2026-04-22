@@ -383,3 +383,27 @@ test "real world example - application config" {
     }
   }
 }
+
+///| Regression test for the starts_with / ends_with rewrite.
+///
+/// MoonBit slice syntax validates UTF-16 surrogate boundaries, so the
+/// previous s[0:prefix.length()].to_string() rewrite would abort on input
+/// whose first or last character was outside the BMP (e.g. an emoji).
+/// Using String::has_prefix / has_suffix delegates to a safe comparison.
+test "parse keys with non-BMP (emoji) characters at line boundaries" {
+  let content =
+    #|[section]
+    #|🔑=value with emoji key
+    #|key=value ending with 🎯
+    #|
+  match parse(content) {
+    Ok(cfg) => {
+      inspect(cfg.get("section", "🔑"), content="Some(\"value with emoji key\")")
+      inspect(
+        cfg.get("section", "key"),
+        content="Some(\"value ending with 🎯\")",
+      )
+    }
+    Err(_) => fail("expected parse to succeed on non-BMP input")
+  }
+}
