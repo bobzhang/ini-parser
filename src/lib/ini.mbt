@@ -37,24 +37,18 @@ fn trim_string(s : String) -> String {
   if start == 0 && end == s.length() {
     s
   } else {
-    s.substring(start~, end~)
+    s[start:end].to_string()
   }
 }
 
 ///| Helper function to check if string starts with given prefix
 fn starts_with(s : String, prefix : String) -> Bool {
-  if s.length() < prefix.length() {
-    return false
-  }
-  s.substring(start=0, end=prefix.length()) == prefix
+  s.has_prefix(prefix)
 }
 
 ///| Helper function to check if string ends with given suffix
 fn ends_with(s : String, suffix : String) -> Bool {
-  if s.length() < suffix.length() {
-    return false
-  }
-  s.substring(start=s.length() - suffix.length(), end=s.length()) == suffix
+  s.has_suffix(suffix)
 }
 
 ///| Create a new empty INI configuration
@@ -81,7 +75,7 @@ pub fn parse(content : String) -> Result[IniConfig, ParseError] {
     // Check for section header
     if starts_with(trimmed, "[") && ends_with(trimmed, "]") {
       let section_name = trim_string(
-        trimmed.substring(start=1, end=trimmed.length() - 1),
+        trimmed[1:trimmed.length() - 1].to_string(),
       )
       if section_name.is_empty() {
         return Err(InvalidFormat("Empty section name"))
@@ -98,9 +92,9 @@ pub fn parse(content : String) -> Result[IniConfig, ParseError] {
     match separator_pos {
       None => return Err(InvalidFormat("Invalid key-value pair: \{trimmed}"))
       Some(pos) => {
-        let key = trim_string(trimmed.substring(start=0, end=pos))
+        let key = trim_string(trimmed[0:pos].to_string())
         let value = trim_string(
-          trimmed.substring(start=pos + 1, end=trimmed.length()),
+          trimmed[pos + 1:trimmed.length()].to_string(),
         )
         if key.is_empty() {
           return Err(InvalidFormat("Empty key in line: \{trimmed}"))
