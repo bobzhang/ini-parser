@@ -8,18 +8,21 @@
 /// - Key-value pairs are separated by '=' or ':'
 /// - Whitespace around keys and values is trimmed
 
-///| Represents a parsed INI configuration
+///|
+/// Represents a parsed INI configuration
 pub struct IniConfig {
   sections : Map[String, Map[String, String]]
 }
 
-///| Error types that can occur during INI parsing
+///|
+/// Error types that can occur during INI parsing
 pub enum ParseError {
   InvalidFormat(String)
   DuplicateKey(String, String) // section, key
 } derive(Show, Eq)
 
-///| Helper function to trim whitespace from a string
+///|
+/// Helper function to trim whitespace from a string
 fn trim_string(s : String) -> String {
   let mut start = 0
   let mut end = s.length()
@@ -41,22 +44,26 @@ fn trim_string(s : String) -> String {
   }
 }
 
-///| Helper function to check if string starts with given prefix
+///|
+/// Helper function to check if string starts with given prefix
 fn starts_with(s : String, prefix : String) -> Bool {
   s.has_prefix(prefix)
 }
 
-///| Helper function to check if string ends with given suffix
+///|
+/// Helper function to check if string ends with given suffix
 fn ends_with(s : String, suffix : String) -> Bool {
   s.has_suffix(suffix)
 }
 
-///| Create a new empty INI configuration
+///|
+/// Create a new empty INI configuration
 pub fn IniConfig::new() -> IniConfig {
-  { sections: Map::new() }
+  { sections: Map::new(), }
 }
 
-///| Parse an INI string and return the configuration
+///|
+/// Parse an INI string and return the configuration
 pub fn parse(content : String) -> Result[IniConfig, ParseError] {
   let config = IniConfig::new()
   let mut current_section = ""
@@ -93,9 +100,7 @@ pub fn parse(content : String) -> Result[IniConfig, ParseError] {
       None => return Err(InvalidFormat("Invalid key-value pair: \{trimmed}"))
       Some(pos) => {
         let key = trim_string(trimmed[0:pos].to_string())
-        let value = trim_string(
-          trimmed[pos + 1:trimmed.length()].to_string(),
-        )
+        let value = trim_string(trimmed[pos + 1:trimmed.length()].to_string())
         if key.is_empty() {
           return Err(InvalidFormat("Empty key in line: \{trimmed}"))
         }
@@ -132,8 +137,9 @@ pub fn parse(content : String) -> Result[IniConfig, ParseError] {
   Ok(config)
 }
 
-///| Find the position of the first separator ('=' or ':') in a string
-fn find_separator(line : String) -> Int? {
+///|
+/// Find the position of the first separator ('=' or ':') in a string
+fn find_separator(line : String) -> Int32? {
   let mut i = 0
   while i < line.length() {
     let char = line[i]
@@ -145,7 +151,8 @@ fn find_separator(line : String) -> Int? {
   None
 }
 
-///| Get a value from a specific section and key
+///|
+/// Get a value from a specific section and key
 pub fn IniConfig::get(
   self : IniConfig,
   section : String,
@@ -157,7 +164,8 @@ pub fn IniConfig::get(
   }
 }
 
-///| Get a value with a default fallback
+///|
+/// Get a value with a default fallback
 pub fn IniConfig::get_or_default(
   self : IniConfig,
   section : String,
@@ -170,12 +178,14 @@ pub fn IniConfig::get_or_default(
   }
 }
 
-///| Check if a section exists
+///|
+/// Check if a section exists
 pub fn IniConfig::has_section(self : IniConfig, section : String) -> Bool {
   self.sections.contains(section)
 }
 
-///| Check if a key exists in a section
+///|
+/// Check if a key exists in a section
 pub fn IniConfig::has_key(
   self : IniConfig,
   section : String,
@@ -187,7 +197,8 @@ pub fn IniConfig::has_key(
   }
 }
 
-///| Get all section names
+///|
+/// Get all section names
 pub fn IniConfig::sections(self : IniConfig) -> Array[String] {
   let result = []
   for entry in self.sections {
@@ -196,7 +207,8 @@ pub fn IniConfig::sections(self : IniConfig) -> Array[String] {
   result
 }
 
-///| Get all keys in a section
+///|
+/// Get all keys in a section
 pub fn IniConfig::keys(self : IniConfig, section : String) -> Array[String] {
   match self.sections.get(section) {
     None => []
@@ -210,7 +222,8 @@ pub fn IniConfig::keys(self : IniConfig, section : String) -> Array[String] {
   }
 }
 
-///| Set a value in the configuration
+///|
+/// Set a value in the configuration
 pub fn IniConfig::set(
   self : IniConfig,
   section : String,
@@ -226,7 +239,8 @@ pub fn IniConfig::set(
   }
 }
 
-///| Convert the configuration back to INI format string
+///|
+/// Convert the configuration back to INI format string
 pub fn IniConfig::to_string(self : IniConfig) -> String {
   let mut result = ""
   for section_entry in self.sections {

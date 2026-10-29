@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/ini/lib"
+
+// Values
+pub fn parse(String) -> Result[IniConfig, ParseError]
+
+// Errors
+
+// Types and methods
+pub struct IniConfig {
+  sections : Map[String, Map[String, String]]
+}
+pub fn IniConfig::get(Self, String, String) -> String?
+pub fn IniConfig::get_or_default(Self, String, String, String) -> String
+pub fn IniConfig::has_key(Self, String, String) -> Bool
+pub fn IniConfig::has_section(Self, String) -> Bool
+pub fn IniConfig::keys(Self, String) -> Array[String]
+pub fn IniConfig::new() -> Self
+pub fn IniConfig::sections(Self) -> Array[String]
+pub fn IniConfig::set(Self, String, String, String) -> Unit
+pub fn IniConfig::to_string(Self) -> String
+
+pub enum ParseError {
+  InvalidFormat(String)
+  DuplicateKey(String, String)
+} derive(Eq, Show)
+pub fn ParseError::equal(Self, Self) -> Bool
+pub fn ParseError::not_equal(Self, Self) -> Bool
+pub fn ParseError::output(Self, &Logger) -> Unit
+pub fn ParseError::to_string(Self) -> String
+
+// Type aliases
+
+// Traits
