@@ -19,7 +19,25 @@ pub struct IniConfig {
 pub enum ParseError {
   InvalidFormat(String)
   DuplicateKey(String, String) // section, key
-} derive(Show, Eq)
+} derive(Eq)
+
+///|
+pub impl Show for ParseError with fn output(self, logger) {
+  match self {
+    InvalidFormat(message) => {
+      logger.write_string("InvalidFormat(")
+      Show::output(message, logger)
+      logger.write_string(")")
+    }
+    DuplicateKey(section, key) => {
+      logger.write_string("DuplicateKey(")
+      Show::output(section, logger)
+      logger.write_string(", ")
+      Show::output(key, logger)
+      logger.write_string(")")
+    }
+  }
+}
 
 ///|
 /// Helper function to trim whitespace from a string
@@ -40,7 +58,7 @@ fn trim_string(s : String) -> String {
   if start == 0 && end == s.length() {
     s
   } else {
-    s[start:end].to_string()
+    s[start:end].to_owned()
   }
 }
 
@@ -59,7 +77,7 @@ fn ends_with(s : String, suffix : String) -> Bool {
 ///|
 /// Create a new empty INI configuration
 pub fn IniConfig::new() -> IniConfig {
-  { sections: Map::new(), }
+  { sections: Map([]), }
 }
 
 ///|
@@ -69,7 +87,7 @@ pub fn parse(content : String) -> Result[IniConfig, ParseError] {
   let mut current_section = ""
   let lines = content.split("\n")
   for line_view in lines {
-    let line = line_view.to_string()
+    let line = line_view.to_owned()
     let trimmed = trim_string(line)
 
     // Skip empty lines and comments
@@ -81,15 +99,13 @@ pub fn parse(content : String) -> Result[IniConfig, ParseError] {
 
     // Check for section header
     if starts_with(trimmed, "[") && ends_with(trimmed, "]") {
-      let section_name = trim_string(
-        trimmed[1:trimmed.length() - 1].to_string(),
-      )
+      let section_name = trim_string(trimmed[1:trimmed.length() - 1].to_owned())
       if section_name.is_empty() {
         return Err(InvalidFormat("Empty section name"))
       }
       current_section = section_name
       if config.sections.contains(current_section) == false {
-        config.sections[current_section] = Map::new()
+        config.sections[current_section] = Map([])
       }
       continue
     }
@@ -99,8 +115,8 @@ pub fn parse(content : String) -> Result[IniConfig, ParseError] {
     match separator_pos {
       None => return Err(InvalidFormat("Invalid key-value pair: \{trimmed}"))
       Some(pos) => {
-        let key = trim_string(trimmed[0:pos].to_string())
-        let value = trim_string(trimmed[pos + 1:trimmed.length()].to_string())
+        let key = trim_string(trimmed[0:pos].to_owned())
+        let value = trim_string(trimmed[pos + 1:trimmed.length()].to_owned())
         if key.is_empty() {
           return Err(InvalidFormat("Empty key in line: \{trimmed}"))
         }
@@ -109,18 +125,18 @@ pub fn parse(content : String) -> Result[IniConfig, ParseError] {
         if current_section.is_empty() {
           current_section = "global"
           if config.sections.contains(current_section) == false {
-            config.sections[current_section] = Map::new()
+            config.sections[current_section] = Map([])
           }
         }
 
         // Check for duplicate keys in the same section
         if config.sections.contains(current_section) == false {
-          config.sections[current_section] = Map::new()
+          config.sections[current_section] = Map([])
         }
         match config.sections.get(current_section) {
           None => {
             // This shouldn't happen since we just ensured it exists
-            let new_map = Map::new()
+            let new_map = Map([])
             new_map.set(key, value)
             config.sections[current_section] = new_map
           }
@@ -231,7 +247,7 @@ pub fn IniConfig::set(
   value : String,
 ) -> Unit {
   if self.sections.contains(section) == false {
-    self.sections[section] = Map::new()
+    self.sections[section] = Map([])
   }
   match self.sections.get(section) {
     None => () // This shouldn't happen

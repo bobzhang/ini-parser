@@ -23,11 +23,12 @@ pub fn IniConfig::to_string(Self) -> String
 pub enum ParseError {
   InvalidFormat(String)
   DuplicateKey(String, String)
-} derive(Eq, Show)
+} derive(Eq)
 pub fn ParseError::equal(Self, Self) -> Bool
 pub fn ParseError::not_equal(Self, Self) -> Bool
 pub fn ParseError::output(Self, &Logger) -> Unit
 pub fn ParseError::to_string(Self) -> String
+pub impl Show for ParseError
 
 // Type aliases
 
