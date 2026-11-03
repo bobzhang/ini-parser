@@ -16,10 +16,11 @@ pub struct IniConfig {
 
 ///|
 /// Error types that can occur during INI parsing
+#derive(Eq)
 pub enum ParseError {
   InvalidFormat(String)
   DuplicateKey(String, String) // section, key
-} derive(Eq)
+}
 
 ///|
 pub impl Show for ParseError with fn output(self, logger) {

@@ -20,10 +20,11 @@ pub fn IniConfig::sections(Self) -> Array[String]
 pub fn IniConfig::set(Self, String, String, String) -> Unit
 pub fn IniConfig::to_string(Self) -> String
 
+#derive(Eq)
 pub enum ParseError {
   InvalidFormat(String)
   DuplicateKey(String, String)
-} derive(Eq)
+}
 pub fn ParseError::equal(Self, Self) -> Bool
 pub fn ParseError::not_equal(Self, Self) -> Bool
 pub fn ParseError::output(Self, &Logger) -> Unit

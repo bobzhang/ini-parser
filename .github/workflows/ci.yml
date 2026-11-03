@@ -8,16 +8,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        toolchain: [latest, nightly]
+        toolchain: [latest, pre-release]
     steps:
       - uses: actions/checkout@v4
       - name: Install MoonBit
         run: |
-          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- ${{ matrix.toolchain }}
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s -- "${{ matrix.toolchain }}"
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
       - run: moon version --all
       - run: moon update
-      - run: moon check
-      - run: moon test --target all
+      - run: moon check --target all --deny-warn
+      - run: moon test --target all --deny-warn
       - run: moon fmt --check
